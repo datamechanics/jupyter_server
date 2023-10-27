@@ -198,8 +198,7 @@ class SessionManager(LoggingConfigurable):
     _connection = None
     _columns = {"session_id", "path", "name", "type", "kernel_id"}
 
-    fut_kernel_id_dict = {}
-    polling_kernel = False
+    fut_kernel_id_dict = None
 
     @property
     def cursor(self):
@@ -256,8 +255,8 @@ class SessionManager(LoggingConfigurable):
     ):
         """Creates a session and returns its model"""
 
-        if session_id is not None:
-            self.polling_kernel = True
+        if session_id is not None and self.fut_kernel_id_dict is None:
+            self.fut_kernel_id_dict = {}
 
         if session_id is None or session_id == "":
             session_id = self.new_session_id()
@@ -285,7 +284,7 @@ class SessionManager(LoggingConfigurable):
     async def start_kernel_for_session(self, session_id, path, name, type, kernel_name):
         """Start a new kernel for a given session."""
         # allow contents manager to specify kernels cwd
-        if self.polling_kernel:
+        if self.fut_kernel_id_dict is not None:
             if session_id in self.fut_kernel_id_dict:
                 fut_kernel_id = self.fut_kernel_id_dict[session_id]
                 done, pending = await asyncio.wait({fut_kernel_id})
@@ -363,7 +362,7 @@ class SessionManager(LoggingConfigurable):
             session described by the kwarg.
         """
         session_id = kwargs["session_id"]
-        if session_id in self.fut_kernel_id_dict:
+        if self.fut_kernel_id_dict is not None and session_id in self.fut_kernel_id_dict:
             model = {
                 "id": "waiting",
                 "session_id": session_id,

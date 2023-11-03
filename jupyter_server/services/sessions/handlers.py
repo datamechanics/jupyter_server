@@ -39,7 +39,7 @@ class SessionRootHandler(SessionsAPIHandler):
         """Get a list of running sessions."""
         sm = self.session_manager
         sessions = await ensure_async(sm.list_sessions())
-        await self.finish(json.dumps(sessions, default=json_default))
+        self.finish(json.dumps(sessions, default=json_default))
 
     @web.authenticated
     @authorized
@@ -103,7 +103,7 @@ class SessionRootHandler(SessionsAPIHandler):
                 status_msg = "%s not found" % kernel_name
                 self.log.warning("Kernel not found: %s" % kernel_name)
                 self.set_status(501)
-                await self.finish(json.dumps({"message": msg, "short_message": status_msg}))
+                self.finish(json.dumps({"message": msg, "short_message": status_msg}))
                 return
             except Exception as e:
                 raise web.HTTPError(500, str(e)) from e
@@ -111,7 +111,7 @@ class SessionRootHandler(SessionsAPIHandler):
         location = url_path_join(self.base_url, "api", "sessions", model["id"])
         self.set_header("Location", location)
         self.set_status(201)
-        await self.finish(json.dumps(model, default=json_default))
+        self.finish(json.dumps(model, default=json_default))
 
 
 class SessionHandler(SessionsAPIHandler):
@@ -123,7 +123,7 @@ class SessionHandler(SessionsAPIHandler):
         """Get the JSON model for a single session."""
         sm = self.session_manager
         model = await sm.get_session(session_id=session_id)
-        await self.finish(json.dumps(model, default=json_default))
+        self.finish(json.dumps(model, default=json_default))
 
     @web.authenticated
     @authorized
@@ -181,7 +181,7 @@ class SessionHandler(SessionsAPIHandler):
             # If we are not using pending kernels, wait for the kernel to shut down
             if not getattr(km, "use_pending_kernels", None):
                 await fut
-        await self.finish(json.dumps(model, default=json_default))
+        self.finish(json.dumps(model, default=json_default))
 
     @web.authenticated
     @authorized
@@ -194,7 +194,7 @@ class SessionHandler(SessionsAPIHandler):
             # the kernel was deleted but the session wasn't!
             raise web.HTTPError(410, "Kernel deleted before session") from e
         self.set_status(204)
-        await self.finish()
+        self.finish()
 
 
 # -----------------------------------------------------------------------------

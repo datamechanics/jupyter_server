@@ -94,7 +94,7 @@ class AuthenticatedHandler(web.RequestHandler):
                 # Make sure the report-uri is relative to the base_url
                 "report-uri "
                 + self.settings.get("csp_report_uri", url_path_join(self.base_url, csp_report_uri)),
-                ]
+            ]
         )
 
     def set_default_headers(self):

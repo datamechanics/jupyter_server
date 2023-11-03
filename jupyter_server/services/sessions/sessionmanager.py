@@ -352,8 +352,7 @@ class SessionManager(LoggingConfigurable):
         if self.fut_kernel_id_dict is not None:
             if session_id in self.fut_kernel_id_dict:
                 fut_kernel_id = self.fut_kernel_id_dict[session_id]
-                done, pending = await asyncio.wait({fut_kernel_id})
-                if fut_kernel_id in done:
+                if fut_kernel_id.done():
                     kernel_id = await fut_kernel_id
                     self.fut_kernel_id_dict.pop(session_id)
                     return kernel_id
@@ -430,11 +429,10 @@ class SessionManager(LoggingConfigurable):
         session_id = kwargs["session_id"]
         if self.fut_kernel_id_dict is not None and session_id in self.fut_kernel_id_dict:
             model = {
-                "id": "waiting",
-                "session_id": session_id,
+                "id": session_id,
                 "name": "Waiting for kernel to start",
                 "last_activity": None,
-                "execution_state": "starting",
+                "execution_state": "waiting",
                 "connections": 0,
             }
         else:

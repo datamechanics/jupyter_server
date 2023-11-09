@@ -11,8 +11,9 @@ class PassthroughTokenRenewer(GatewayTokenRenewerBase):
             auth_token: str,
             **kwargs: ty.Any,
     ) -> str:
-        print("trying to get token")
-        print(kwargs)
+        self.log.warning("PassthroughTokenRenewer.get_token")
+        self.log.warning(f"auth_header_key: {auth_token}")
+        self.log.warning(f"kwargs: {kwargs}")
         #request = jupyter_server.base.handlers.get_current_request()
         #if request is None:
         #    logging.error("Could not get current request")

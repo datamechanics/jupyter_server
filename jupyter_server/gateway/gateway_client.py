@@ -556,18 +556,15 @@ such that request_timeout >= KERNEL_LAUNCH_TIMEOUT + launch_timeout_pad.
         have yet to be initialized, we'll do that here.
 
         """
-        self.log.warning("now in load_connection_args")
-
-        print("print now in load_connection_args")
-        
         if len(self._connection_args) == 0:
             self.init_connection_args()
 
         # Give token renewal a shot at renewing the token
         prev_auth_token = self.auth_token
         try:
+            self.log.warning("got here")
             self.auth_token = self.gateway_token_renewer.get_token(
-                self.auth_header_key, self.auth_scheme, self.auth_token
+                self.auth_header_key, self.auth_scheme, self.auth_token, **kwargs
             )
         except Exception as ex:
             self.log.error(
@@ -723,8 +720,6 @@ class RetryableHTTPClient:
 
 async def gateway_request(endpoint: str, **kwargs: ty.Any) -> HTTPResponse:
     """Make an async request to kernel gateway endpoint, returns a response"""
-    print("now in gateway requeest")
-    
     kwargs = GatewayClient.instance().load_connection_args(**kwargs)
     rhc = RetryableHTTPClient()
     try:
